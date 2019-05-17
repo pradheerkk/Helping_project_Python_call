@@ -1,0 +1,333 @@
+https://www.nabisoft.com/tutorials/java-ee/producing-and-consuming-json-or-xml-in-java-rest-services-with-jersey-and-moxy
+https://docs.spring.io/spring/docs/current/javadoc-api/org/springframework/web/util/UriComponentsBuilder.html
+
+
+package com.crunchify.tutorials;
+ 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+ 
+import org.json.JSONObject;
+ 
+/**
+ * @author Crunchify.com
+ * 
+ */
+ 
+public class CrunchifyRESTServiceClient {
+	public static void main(String[] args) {
+		String string = "";
+		try {
+ 
+			// Step1: Let's 1st read file from fileSystem
+			// Change CrunchifyJSON.txt path here
+			InputStream crunchifyInputStream = new FileInputStream("/Users/<username>/Documents/CrunchifyJSON.txt");
+			InputStreamReader crunchifyReader = new InputStreamReader(crunchifyInputStream);
+			BufferedReader br = new BufferedReader(crunchifyReader);
+			String line;
+			while ((line = br.readLine()) != null) {
+				string += line + "\n";
+			}
+ 
+			JSONObject jsonObject = new JSONObject(string);
+			System.out.println(jsonObject);
+ 
+			// Step2: Now pass JSON File Data to REST Service
+			try {
+				URL url = new URL("http://localhost:8080/CrunchifyTutorials/api/crunchifyService");
+				URLConnection connection = url.openConnection();
+				connection.setDoOutput(true);
+				connection.setRequestProperty("Content-Type", "application/json");
+				connection.setConnectTimeout(5000);
+				connection.setReadTimeout(5000);
+				OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
+				out.write(jsonObject.toString());
+				out.close();
+ 
+				BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+ 
+				while (in.readLine() != null) {
+				}
+				System.out.println("\nCrunchify REST Service Invoked Successfully..");
+				in.close();
+			} catch (Exception e) {
+				System.out.println("\nError while calling Crunchify REST Service");
+				System.out.println(e);
+			}
+ 
+			br.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+public class RestClient
+{
+    private ArrayList<NameValuePair> params;
+    private ArrayList<NameValuePair> headers;
+
+    private String url;
+
+    private int responseCode;
+    private String message;
+
+    private String response;
+
+    public String getResponse()
+    {
+        return response;
+    }
+
+    public String getErrorMessage()
+    {
+        return message;
+    }
+
+    public int getResponseCode()
+    {
+        return responseCode;
+    }
+
+    public RestClient(String url) {
+        this.url = url;
+        params = new ArrayList<NameValuePair>();
+        headers = new ArrayList<NameValuePair>();
+    }
+
+    public void AddParam(String name, String value)
+    {
+        params.add(new BasicNameValuePair(name, value));
+    }
+
+    public void AddHeader(String name, String value)
+    {
+        headers.add(new BasicNameValuePair(name, value));
+    }
+
+    public void Execute(RequestMethod method) throws Exception
+    {
+        switch (method)
+        {
+        case GET:
+        {
+            // add parameters
+            String combinedParams = "";
+            if (!params.isEmpty())
+            {
+                combinedParams += "";
+                for (NameValuePair p : params)
+                {
+                    String paramString = p.getName() + "" + URLEncoder.encode(p.getValue(),"UTF-8");
+                    if (combinedParams.length() > 1)
+                    {
+                        combinedParams += "&" + paramString;
+                    }
+                    else
+                    {
+                        combinedParams += paramString;
+                    }
+                }
+            }
+
+            HttpGet request = new HttpGet(url + combinedParams);
+
+            // add headers
+            for (NameValuePair h : headers)
+            {
+                request.addHeader(h.getName(), h.getValue());
+            }
+
+            executeRequest(request, url);
+            break;
+        }
+        case POST:
+        {
+            HttpPost request = new HttpPost(url);
+
+            // add headers
+            for (NameValuePair h : headers)
+            {
+                request.addHeader(h.getName(), h.getValue());
+            }
+
+            if (!params.isEmpty())
+            {
+                request.setEntity(new UrlEncodedFormEntity(params, HTTP.UTF_8));
+            }
+
+            executeRequest(request, url);
+            break;
+        }
+        }
+    }
+
+    private void executeRequest(HttpUriRequest request, String url) throws Exception
+    {
+
+        HttpParams httpParameters = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParameters,15000);
+        HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+        HttpClient client = new DefaultHttpClient(httpParameters);
+
+        HttpResponse httpResponse;
+
+
+
+
+
+            httpResponse = client.execute(request);
+            responseCode = httpResponse.getStatusLine().getStatusCode();
+            message = httpResponse.getStatusLine().getReasonPhrase();
+
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (entity != null)
+            {
+
+                InputStream instream = entity.getContent();
+                response = convertStreamToString(instream);
+
+                // Closing the input stream will trigger connection release
+                instream.close();
+            }
+
+
+    }
+
+    private static String convertStreamToString(InputStream is)
+    {
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        StringBuilder sb = new StringBuilder();
+
+        String line = null;
+        try
+        {
+            while ((line = reader.readLine()) != null)
+            {
+                sb.append(line + "\n");
+            }
+        }
+        catch (IOException e)
+        {
+
+            e.printStackTrace();
+        }
+        finally
+        {
+            try
+            {
+                is.close();
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return sb.toString();
+    }
+    public InputStream getInputStream(){
+        HttpParams httpParameters = new BasicHttpParams();
+        HttpConnectionParams.setConnectionTimeout(httpParameters,15000);
+        HttpConnectionParams.setSoTimeout(httpParameters, 15000);
+        HttpClient client = new DefaultHttpClient(httpParameters);
+
+        HttpResponse httpResponse;
+
+        try
+        {
+
+               HttpPost request = new HttpPost(url);
+
+            httpResponse = client.execute(request);
+            responseCode = httpResponse.getStatusLine().getStatusCode();
+            message = httpResponse.getStatusLine().getReasonPhrase();
+
+            HttpEntity entity = httpResponse.getEntity();
+
+            if (entity != null)
+            {
+
+                InputStream instream = entity.getContent();
+                return instream;
+             /*   response = convertStreamToString(instream);
+
+                // Closing the input stream will trigger connection release
+                instream.close();*/
+            }
+
+        }
+        catch (ClientProtocolException e)
+        {
+            client.getConnectionManager().shutdown();
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            client.getConnectionManager().shutdown();
+            e.printStackTrace();
+        }
+        return null;
+    }
+    public enum RequestMethod
+    {
+        GET,
+        POST
+    }
+}
+
+
+
+
+-----------------------------------------------------
+
+RestClient client=new RestClient(Webservices.student_details);
+JSONObject obj=new JSONObject();
+obj.put("StudentId",preferences.getStudentId());
+client.AddParam("",obj.toString());
+client.Execute(RequestMethod.GET);
+String response=client.getResponse();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
