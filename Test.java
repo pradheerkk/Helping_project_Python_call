@@ -10,12 +10,14 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public class Test {
  public static void main(String[] args) throws ClientProtocolException, IOException {
   HttpClient client = new DefaultHttpClient();
-  HttpPost post = new HttpPost("http://10.177.54.170:8000/calculate");
+  HttpPost post = new HttpPost("http://10.177.54.170:8000/calculate/");
+  
 	 ObjectToJson ob = new ObjectToJson();
   TestObject to=new TestObject();
   String s=ob.convert_To_Json(to);
+ // post.setEntity(s);
   System.out.println(s);
-  StringEntity input = new StringEntity("s");
+  StringEntity input = new StringEntity(s);
   input.setContentType("application/json");
   post.setEntity(input);
   HttpResponse response = client.execute(post);
@@ -24,5 +26,6 @@ public class Test {
   while ((line = rd.readLine()) != null) {
    System.out.println(line);
   }
+	
  }
 }
