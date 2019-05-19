@@ -7,6 +7,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.codehaus.jackson.map.ObjectMapper;
 public class Test {
  public static void main(String[] args) throws ClientProtocolException, IOException {
   HttpClient client = new DefaultHttpClient();
@@ -26,7 +27,7 @@ public class Test {
   while ((line = rd.readLine()) != null) {
    System.out.println(line);
   }
-String jsonValue="{\"MDMSGPHist\":{\"mean_cti\":\"0.09775471870078165\",\"stddev_cti\":\"0.010620863054360058\"}, \"MDMSMetres\":{\"elevation_m\":\"998.7\",\"roughness_m\":\"0.03\",\"wind_speed\":\"8.92\",\"weibull_a\":\"10.060003791384636\"},\"MDMSKiloMetres\":{\"elevation_m\":\"980.3163893523727\",\"roughness_m\":\"0.11\",\"air_density\":\"1.0731408364474098\",\"wind_speed\":\"7.58006003713075\"}}";
+//String jsonValue="{\"MDMSGPHist\":{\"mean_cti\":\"0.09775471870078165\",\"stddev_cti\":\"0.010620863054360058\"}, \"MDMSMetres\":{\"elevation_m\":\"998.7\",\"roughness_m\":\"0.03\",\"wind_speed\":\"8.92\",\"weibull_a\":\"10.060003791384636\"},\"MDMSKiloMetres\":{\"elevation_m\":\"980.3163893523727\",\"roughness_m\":\"0.11\",\"air_density\":\"1.0731408364474098\",\"wind_speed\":\"7.58006003713075\"}}";
 	/*//Gson gson = new Gson();
 	JsonParser parser = new JsonParser();
 	JsonObject object = (JsonObject) parser.parse(jsonValue);// response will be the json String
@@ -34,9 +35,9 @@ String jsonValue="{\"MDMSGPHist\":{\"mean_cti\":\"0.09775471870078165\",\"stddev
 	json from python ={"MDMSGPHist":{"mean_cti":"0.09775471870078165","stddev_cti":"0.010620863054360058"}, "MDMSMetres":{"elevation_m":"998.7","roughness_m":"0.03","wind_speed":"8.92","weibull_a":"10.060003791384636"},"MDMSKiloMetres":{"elevation_m":"980.3163893523727","roughness_m":"0.11","air_density":"1.0731408364474098","wind_speed":"7.58006003713075"}}
 */ 
 	ObjectMapper objectMapper = new ObjectMapper();
-	objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-	WindParameters wp = objectMapper.readValue(jsonValue, WindParameters.class);
+	//objectMapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+	//WindParameters wp = objectMapper.readValue(jsonValue, WindParameters.class);
 	
-	System.out.println(wp.toString());	
+	//System.out.println(wp.toString());	
  }
 }
